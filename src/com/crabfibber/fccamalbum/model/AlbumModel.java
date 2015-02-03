@@ -4,44 +4,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class AlbumModel {
-	public static List<Integer> currentPathId;			//Í¼Æ¬
-	public static List<String> currentPathFile;		//È«²¿Í¼Æ¬ÁĞ±í
-	public static List<String> dcimPathList;			//ÎÄ¼ş¼ĞÁĞ±í
-	public static List<String> dcimPathFullNameList;	//ÍêÕûÄ¿Â¼Ãû	
-	public static List<Integer> dcimPicNumCounter;		//Ã¿¸öÎÄ¼ş¼ĞÄÚÍ¼Æ¬µÄÊıÁ¿
+	public static List<Integer> currentPathId;		// å›¾ç‰‡ID
+	public static List<String> currentPathFile; 	// å…¨éƒ¨å›¾ç‰‡åˆ—è¡¨
+	public static List<String> dcimPathList; 		//æ–‡ä»¶å¤¹åˆ—è¡¨
+	public static List<String> dcimPathFullNameList; // å®Œæ•´ç›®å½•å
+	public static List<Integer> dcimPicNumCounter; // æ¯ä¸ªæ–‡ä»¶å¤¹å†…å›¾ç‰‡çš„
 	
+	public static List<String> resultPath;		//é€‰ä¸­çš„ç…§ç‰‡
+
 	public static AlbumModel instance;
-	
-	private AlbumModel(){
+
+	private AlbumModel() {
 		dataInit();
 	}
-	
-	public static AlbumModel getIns(){
-		if(instance==null){
-			instance=new AlbumModel();
+
+	public static AlbumModel getIns() {
+		if (instance == null) {
+			instance = new AlbumModel();
 		}
 		return instance;
 	}
-	
-	public void dataDestroy(){
+
+	public void dataDestroy() {
 		dcimPathFullNameList.clear();
 		dcimPathList.clear();
 		currentPathFile.clear();
 		dcimPicNumCounter.clear();
 	}
 
-	
-	// ³õÊ¼»¯Êı¾İ½á¹¹
-	private void dataInit(){
+	//åˆå§‹åŒ–æ•°æ®ç»“æ„
+	private void dataInit() {
 		if (dcimPathFullNameList == null) {
 			dcimPathFullNameList = new ArrayList<String>();
 			dcimPathFullNameList.add("");
 		}
 		if (dcimPathList == null) {
 			dcimPathList = new ArrayList<String>();
-			dcimPathList.add("ËùÓĞÍ¼Æ¬");
+			dcimPathList.add("æ‰€æœ‰å›¾ç‰‡");
 		}
-		if (currentPathFile == null) { // È«²¿Í¼Æ¬
+		if (currentPathFile == null) { //å…¨éƒ¨å›¾ç‰‡
 			currentPathFile = new ArrayList<String>();
 		}
 		if (dcimPicNumCounter == null) {
@@ -50,5 +51,4 @@ public final class AlbumModel {
 		}
 	}
 
-	
 }
