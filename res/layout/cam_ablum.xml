@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${relativePackage}.${activityClass}" >
+
+    <Button 
+        android:layout_alignParentTop="true"
+        android:id="@+id/getPhoto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_name"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:background="@drawable/bg_panel_sel"
+        android:visibility="gone"
+        />
+
+    <!--  android:layout_below="@+id/getPhoto" -->
+	<GridView 
+	    android:layout_alignParentTop="true"
+	    android:layout_above="@+id/bottom_layout"
+	    android:id="@+id/main_grid"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:gravity="center"
+	    android:stretchMode="columnWidth"
+	    android:numColumns="3"
+	    android:horizontalSpacing="10dp"
+	    android:verticalSpacing="10dp"
+	    >
+	</GridView>
+	<LinearLayout 
+	    android:id="@+id/bottom_layout"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:layout_alignParentBottom="true"
+	    android:background="#000000"
+	>
+	    <Button 
+	        android:id="@+id/catalog_select"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="popup"
+	        android:textColor="#FFFFFF"
+	        /> 
+	</LinearLayout>
+
+</RelativeLayout>
