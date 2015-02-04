@@ -51,8 +51,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 /**
- * ÅÄÕÕ¿Ø¼ş mainActivity ²âÊÔµ¥Ñ¡¶àÑ¡¿òÌø×ª
- * 
+ * ç›¸å†Œä¸»ç•Œé¢ 
  * @author fc
  * 
  */
@@ -62,9 +61,9 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 
 	private GridView mainView;
 
-	private Button testBtn;
-
-	private Button popupBtn;
+	private Button popupBtn;           //ç›®å½•é€‰æ‹©æ¡†
+	
+	private MenuItem finishMenu;           //å®ŒæˆæŒ‰é’®
 
 	private LruCache<String, Bitmap> memCache;
 
@@ -74,6 +73,7 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 	
 	private AlbumModel dataManager=AlbumModel.getIns();
 	
+	public static final int PREVIEW_RESULT=0x001F;
 	private static final int INIT_PROGRAM = 0x000A;
 	private static final int SET_ADAPTER = 0x000B;
 	private static final int INIT_CACHE = 0x000C;
@@ -89,35 +89,36 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		super.onCreate(savedInstanceState);
 		Log.v(TAG,"onCreate");
 		running_state=CREATE_STATUS;
-		setContentView(R.layout.cam_ablum);
-		
+		setContentView(R.layout.cam_album);
+		dataManager.dataInit();      //åˆå§‹åŒ–æ•°æ®
 		mainView = (GridView) findViewById(R.id.main_grid);
 		mainView.setAdapter(null);
-
-//		testBtn = (Button) findViewById(R.id.getPhoto);
-//		testBtn.setOnClickListener(new OnClickListener() {
-//
-//			@Override
-//			public void onClick(View v) {
-//				// getImagePath();
-//				handler.sendEmptyMessage(GET_PHOTO_PATH);
-//			}
-//		});
 		
-		
+		//åˆå§‹åŒ–è¦é€‰çš„å›¾ç‰‡æ•°é‡
+		//å•ç‹¬å¯åŠ¨æ—¶ä¸éœ€è¦
+		/*
+		AlbumModel.photoNumber=getIntent().getIntExtra("photoNumber", 0);
+		Log.v(TAG, "photoNumber:"+String.valueOf(AlbumModel.photoNumber));
+		if(AlbumModel.photoNumber==0){
+		    Toast.makeText(CameraAlbumActivity.this, "æ‰€éœ€ç…§ç‰‡å·²ç»è¶³å¤Ÿ,ä¸éœ€è¦å†é€‰ç…§ç‰‡", Toast.LENGTH_LONG).show();
+		    this.finish();
+		    return;
+		}
+		*/
 		// View bottomLayout=findViewById(R.id.bottom_layout);
 		// bottomHeight=bottomLayout.getHeight();
-
-		//µ×²¿µ¯³ö´°
+		
+        //åº•éƒ¨å¼¹å‡ºçª—
 		popupBtn = (Button) findViewById(R.id.catalog_select);
+		popupBtn.setText("æ‰€æœ‰å›¾ç‰‡");
 		popupBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				// ¼ÇµÃ¼ÓÅĞ¶Ï(ÎªÁËÓĞÌØĞ§)
+                // è®°å¾—åŠ åˆ¤æ–­(ä¸ºäº†æœ‰ç‰¹æ•ˆ)
 				initPopWindow();
 			}
 		});
-		handler.sendEmptyMessage(INIT_CACHE);		//³õÊ¼»¯»º´æ
+		handler.sendEmptyMessage(INIT_CACHE);		//åˆå§‹åŒ–ç¼“å­˜
 		handler.sendEmptyMessage(INIT_PROGRAM);		
 	}
 	
@@ -126,13 +127,13 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		super.onResume();
 		Log.v(TAG,"onResume");
 		if(running_state==STOP_STATUS){
-			resetWaitingList();			
+		    handler.sendEmptyMessage(MediaItemAdapter.UPDATE_SELECT_RESULT);
+		    adapter.notifyDataSetChanged();
+		    resetWaitingList();
 		}else{
 			running_state=RESUME_STATUS;
 		}
-		
-//		Log.v(TAG,"getFirstVisiblePosition:"+String.valueOf(mainView.getFirstVisiblePosition()));
-//		Log.v(TAG,"getLastVisiblePosition:"+String.valueOf(mainView.getLastVisiblePosition()));
+
 	}
 
 	@Override
@@ -154,40 +155,48 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		dataManager.dataDestroy();
 	}
 
-	//Íê³É°´Å¥
+	@Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO Auto-generated method stub
+        Log.v(TAG,String.valueOf(item.getItemId()));
+        Log.v(TAG,item.getTitle().toString());
+        
+        switch(item.getItemId()){
+        case 0:
+            Log.v(TAG,"selected photos"); 
+//            loading("æ­£åœ¨å¤„ç†æ‰€é€‰å›¾ç‰‡");
+            //è¿”å›ç»“æœ
+            running_state=STOP_STATUS;
+            cancelLoadingTask();
+//            List<String> result=initSelectResult();
+            Intent intent=new Intent();
+//            intent.putExtra("data", result.toString());
+            Bundle bundle=new Bundle();
+            bundle.putStringArray("resultArray", AlbumModel.resultPath.toArray(new String[AlbumModel.resultPath.size()]));
+            intent.putExtras(bundle);
+            setResultEx(Activity.RESULT_OK, intent);
+//            destroyDialog();
+            finish();
+            break;
+        default:
+            
+            break;
+        }
+	    return super.onOptionsItemSelected(item);
+    }	
+	
+	//å®ŒæˆæŒ‰é’®
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(Menu.NONE, Menu.NONE, Menu.NONE, R.string.finish_select).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);;
-		return super.onCreateOptionsMenu(menu);
+        finishMenu=menu.add(Menu.NONE, Menu.NONE, Menu.NONE, getString(R.string.button_done)+"( "+String.valueOf(AlbumModel.resultPath.size())+"/"+String.valueOf(AlbumModel.photoNumber)+" )");
+        finishMenu.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onPrepareOptionsMenu(menu);
 	}
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		Log.v(TAG,String.valueOf(item.getItemId()));
-		Log.v(TAG,item.getTitle().toString());
-		
-		switch(item.getItemId()){
-		case 0:
-			Log.v(TAG,"selected photos");
-			//·µ»Ø½á¹û
-			Intent intent=new Intent();
-			intent.putExtra("data", "");
-			setResultEx(Activity.RESULT_OK, intent);
-			finish();
-			break;
-		default:
-			
-			break;
-		}
-		
-		return super.onOptionsItemSelected(item);
-	}
-
-
-	/**
-	 * ÎÄ¼ş¼ĞÑ¡Ôñ
-	 * µ¯³ö¿ò
-	 */
+    /**
+     * æ–‡ä»¶å¤¹é€‰æ‹©
+     * å¼¹å‡ºæ¡†
+     */
 	private void initPopWindow() {
 		LayoutInflater inflater = LayoutInflater.from(this);
 		View listWin = inflater.inflate(R.layout.album_pop_up_list, null);
@@ -198,19 +207,22 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		list.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+			public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 					long arg3) {
 				mPopupWin.dismiss();
 //				Log.v(TAG, "arg2=" + String.valueOf(arg2));
 				// Log.v(TAG,"arg3="+String.valueOf(arg3));
 
+				//æ›´æ–°æŒ‰é’®æ–‡å­—
+				popupBtn.setText(AlbumModel.dcimPathList.get(position));
+				
 				Log.v(TAG,
 						"full name="
-								+ AlbumModel.dcimPathFullNameList.get(arg2));
-				// ²éÑ¯ÆäËûÍ¼Æ¬£¬¸üĞÂadapter
-				String newPath = AlbumModel.dcimPathFullNameList.get(arg2);
-
-				Uri externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;		//Íâ²¿´æ´¢Éè±¸
+								+ AlbumModel.dcimPathFullNameList.get(position));
+	            // æŸ¥è¯¢å…¶ä»–å›¾ç‰‡ï¼Œæ›´æ–°adapter
+				String newPath = AlbumModel.dcimPathFullNameList.get(position);
+				
+				Uri externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;		//å¤–éƒ¨å­˜å‚¨è®¾å¤‡
 				List<String>tmlList=getCurrentPath(externalUri,newPath);
 				Message msg = new Message();
 				msg.obj = tmlList;
@@ -232,8 +244,8 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 	}
 
 
-//	private static CamItemAdapter adapter;			//´øÅÄÕÕ
-	private static MediaItemAdapter adapter;		//
+//	private static CamItemAdapter adapter;			//å¸¦æ‹ç…§
+	private static MediaItemAdapter adapter;		//ç…§ç‰‡adapter
 
 	private Handler handler = new Handler() {
 		@Override
@@ -247,16 +259,19 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			case SET_ADAPTER:
 				Log.v(TAG,"SET_ADAPTER");
 				if (adapter == null) {
-					//³õÊ¼»¯
+                    //åˆå§‹åŒ–
 //					adapter = new CamItemAdapter(CamAblum.this, handler,
 //							(List<String>) msg.obj, memCache);
 					adapter = new MediaItemAdapter(CameraAlbumActivity.this, handler, (List<String>)msg.obj, memCache);
 					mainView.setAdapter(adapter);
-					mainView.setOnScrollListener(CameraAlbumActivity.this);		//»¬¶¯¼àÌı
+//					mainView.setSelection(0);		//æ»šå›é¡¶éƒ¨
+//					mainView.smoothScrollToPosition(0);
+					mainView.setOnScrollListener(CameraAlbumActivity.this);		//æ»‘åŠ¨ç›‘å¬
 				}else{
-					//Êı¾İ¸üÌæ
+                    //æ•°æ®æ›´æ›¿
 					adapter.resetData((List<String>)msg.obj);
 					adapter.notifyDataSetChanged();
+					mainView.smoothScrollToPosition(0);					
 				}
 				break;
 			case INIT_CACHE:
@@ -267,13 +282,16 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 					adapter.finishTask();
 				}
 				break;
-			case CamItemAdapter.UPDATE_UI:
+			case MediaItemAdapter.UPDATE_UI:
 				String tag = msg.getData().getString("tag");
 				if (mainView!=null&&(ImageView) mainView.findViewWithTag(tag) != null) {
 					((ImageView) mainView.findViewWithTag(tag))
 							.setImageBitmap((Bitmap) msg.obj);
 				}
 				break;			
+			case MediaItemAdapter.UPDATE_SELECT_RESULT:
+			    finishMenu.setTitle(getString(R.string.button_done)+"( "+String.valueOf(AlbumModel.resultPath.size())+"/"+String.valueOf(AlbumModel.photoNumber)+" )");
+			    break;
 			case ERROR_OCCUR:
 				Toast.makeText(CameraAlbumActivity.this, "error code= *****", Toast.LENGTH_LONG).show();;
 				break;
@@ -283,41 +301,62 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 
 		}
 	};
-	
-	//»ñÈ¡ËùÓĞÎÄ¼ş
+
+    //è·å–æ‰€æœ‰æ–‡ä»¶
 	private void getImagePath() {
 		Log.v(TAG,"getImagePath");
-		//¼ì²é´æ´¢Éè±¸ÊÇ·ñ¿ÉÓÃ
+		
+//		this.loading("æ­£åœ¨åŠ è½½å›¾ç‰‡");
+        //æ£€æŸ¥å­˜å‚¨è®¾å¤‡æ˜¯å¦å¯ç”¨
 		if (!Environment.getExternalStorageState().equals(
 				Environment.MEDIA_MOUNTED)) {
 			handler.sendEmptyMessage(ERROR_OCCUR);
+//			this.destroyDialog();
 			return;
 		}
-
-		// Íâ²¿´æ´¢
-		Uri externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-		// ÄÚ²¿´æ´¢
-//		Uri internalUri = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
-		
-		List<String> tmlList = getPath(externalUri);
-		Message msg = new Message();
-		msg.obj = tmlList;
-		msg.what = SET_ADAPTER;
-		handler.sendMessage(msg);
+		new Thread(new Runnable() {
+            
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+                // å¤–éƒ¨å­˜å‚¨
+                Uri externalUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                // å†…éƒ¨å­˜å‚¨
+//              Uri internalUri = MediaStore.Images.Media.INTERNAL_CONTENT_URI;
+                
+                List<String> tmlList = getPath(externalUri);
+                Message msg = new Message();
+                msg.obj = tmlList;
+                msg.what = SET_ADAPTER;
+                handler.sendMessage(msg);
+//                CameraAlbumActivity.this.destroyDialog();
+            }
+        }).start();
 	}
 
 
-
-	// »ñÈ¡µ¥¸öÎÄ¼ş¼ĞÍ¼Æ¬ĞÅÏ¢
+    // è·å–å•ä¸ªæ–‡ä»¶å¤¹å›¾ç‰‡ä¿¡æ¯
 	private List<String> getCurrentPath(Uri uri,String path) {
-		List<String> currentPathList = new ArrayList<String>();
+        List<String> currentPathList = new ArrayList<String>();
+	    
 		ContentResolver mResolver = CameraAlbumActivity.this.getContentResolver();
-		Cursor mCursor = mResolver.query(uri, null,
-				"_data like ? and ("+
-				MediaStore.Images.Media.MIME_TYPE + "=? or "
-				+ MediaStore.Images.Media.MIME_TYPE + "=?)",
-				new String[]{"%"+path+"%","image/jpeg","image/png"},
-				MediaStore.Images.Media.DATE_MODIFIED + " desc"); 
+		Cursor mCursor=null;
+	    if(path==null||path.equals("")){
+	        mCursor = mResolver.query(uri, null,
+                    "_data not like ? and ("+
+                    MediaStore.Images.Media.MIME_TYPE + "=? or "
+                            + MediaStore.Images.Media.MIME_TYPE + "=?)",
+                    new String[] {"%"+"com.xuanwu.xtion"+"%", "image/jpeg", "image/png" },
+                    MediaStore.Images.Media.DATE_MODIFIED + " desc"); 	        
+	    }else{
+	        mCursor = mResolver.query(uri, null,
+	                "_data like ? and ("+
+	                MediaStore.Images.Media.MIME_TYPE + "=? or "
+	                + MediaStore.Images.Media.MIME_TYPE + "=?)",
+	                new String[]{"%"+path+"%","image/jpeg","image/png"},
+	                MediaStore.Images.Media.DATE_MODIFIED + " desc"); 	        
+	    }
+
 		Log.v(TAG,"path count:"+String.valueOf(mCursor.getCount()));
 		
 		while(mCursor.moveToNext()){
@@ -335,27 +374,28 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		
 		Cursor cursor=mResolver.query(Thumbnails.EXTERNAL_CONTENT_URI, null, "", null, null);
 				
-		//¹Ø¼ü×Ö
-//		Thumbnails._ID;					//×ÔÉíµÄID
-//		Thumbnails.IMAGE_ID;			//¹ØÁªµÄÍ¼Æ¬ID
+		//ç›®æ ‡å­—æ®µ
+//		Thumbnails._ID;					//è¡¨å†…å®¹çš„ID
+//		Thumbnails.IMAGE_ID;			//å…³è”imageè¡¨çš„ID
 		
 	}
 	
-	// ³õÊ¼»¯£¬»ñÈ¡È«²¿µÄÍ¼Æ¬¼°ÆäµØÖ·ĞÅÏ¢
+    // åˆå§‹åŒ–ï¼Œè·å–å…¨éƒ¨çš„å›¾ç‰‡åŠå…¶åœ°å€ä¿¡æ¯
 	private List<String> getPath(Uri uri) {
 
 		List<String> pathList = new ArrayList<String>();
 
-		// µÈ´ıĞŞ¸ÄÌæ»»³ÉCursorLoader
+        // ç­‰å¾…ä¿®æ”¹æ›¿æ¢æˆCursorLoader
 		ContentResolver mResolver = CameraAlbumActivity.this.getContentResolver();
 
 		Cursor mCursor = mResolver.query(uri, null,
+		        "_data not like ? and ("+
 				MediaStore.Images.Media.MIME_TYPE + "=? or "
-						+ MediaStore.Images.Media.MIME_TYPE + "=?",
-				new String[] { "image/jpeg", "image/png" },
-				MediaStore.Images.Media.DATE_MODIFIED + " desc"); // µ¹Ğò
+						+ MediaStore.Images.Media.MIME_TYPE + "=?)",
+				new String[] {"%"+"com.xuanwu.xtion"+"%", "image/jpeg", "image/png" },
+				MediaStore.Images.Media.DATE_MODIFIED + " desc"); 
 		
-
+		AlbumModel.dcimPicNumCounter.set(0, mCursor.getCount());      //å…¨éƒ¨å›¾ç‰‡çš„æ•°é‡
 		while (mCursor.moveToNext()) {
 			String path = mCursor.getString(mCursor
 					.getColumnIndex(MediaStore.Images.Media.DATA));
@@ -364,10 +404,10 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			pathList.add(path);
 			AlbumModel.currentPathFile.add(path);
 
-			// Ğ´½øÒ»¸öÎÄ¼ş¼ĞÁĞ±í
-			// ÕâÖÖ·½Ê½±È½ÏºÄÄÚ´æ°¡¡£»¹ÊÇµÃÏëÏë°ì·¨²»ÒªÓÃnew
-			String parentName = new File(path).getParentFile().getName(); // »ñÈ¡ÎÄ¼ş¼ĞÃû³Æ
-			String parentName2 = new File(path).getParent(); // »ñÈ¡ÍêÕûµÄÎÄ¼ş¼ĞÂ·¾¶
+            // å†™è¿›ä¸€ä¸ªæ–‡ä»¶å¤¹åˆ—è¡¨
+            // è¿™ç§æ–¹å¼æ¯”è¾ƒè€—å†…å­˜å•Šã€‚è¿˜æ˜¯å¾—æƒ³æƒ³åŠæ³•ä¸è¦ç”¨new
+			String parentName = new File(path).getParentFile().getName(); // è·å–æ–‡ä»¶å¤¹åç§°
+			String parentName2 = new File(path).getParent(); // è·å–å®Œæ•´çš„æ–‡ä»¶å¤¹è·¯å¾„
 
 			int tmlCounter = 0;
 			int position = -1;
@@ -389,8 +429,9 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		return pathList;
 	}
 
+
 	// init LRUcache
-	// LRUcacheµÄ²¿·ÖÓ¦¸Ã·Åµ½Í³Ò»µÄÎÄ¼ş¼ĞÀïÃæÈ¥ÊµÏÖ
+    // LRUcacheçš„éƒ¨åˆ†åº”è¯¥æ”¾åˆ°ç»Ÿä¸€çš„æ–‡ä»¶å¤¹é‡Œé¢å»å®ç°
 	private LruCache<String, Bitmap> initCache() {
 		int maxMemory = (int) Runtime.getRuntime().maxMemory();
 //		Log.v(TAG, String.valueOf(maxMemory / (1024 * 1024)));
@@ -410,48 +451,45 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		return bitmapCache;
 	}
 
-
 	@Override
 	public void onClick(View v) {
 	}
 
-
-	//»¬¶¯²Ù×÷
-	
+    //æ»‘åŠ¨æ“ä½œ
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem,
 			int visibleItemCount, int totalItemCount) {
 //		Log.v(TAG,"onScroll");
 	}
 
+
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
 //		Log.v(TAG,"onScrollstateChanged");
 //		Log.v(TAG,"scrollState:"+String.valueOf(scrollState));
 		switch(scrollState){
-		case 0:				//ÍêÈ«Í£Ö¹			
+		case 0:				//å®Œå…¨åœæ­¢			
 			resetWaitingList();
 			break;
-		case 1:				//¿ªÊ¼»¬¶¯
+		case 1:				//å¼€å§‹æ»‘åŠ¨
 			
 			break;
-		case 2:				//·Å¿ª»¬¶¯
-			//Í£Ö¹¼ÓÔØ
+		case 2:				//æ”¾å¼€æ»‘åŠ¨
+		  //åœæ­¢åŠ è½½
 			cancelLoadingTask();			
 			break;
 		}
 		
 	}
-	
-	
-	//Í£Ö¹¼ÓÔØÍ¼Æ¬
+
+    //åœæ­¢åŠ è½½å›¾ç‰‡
 	private void cancelLoadingTask(){
 		if(adapter!=null){
 			adapter.finishTask();
 		}		
 	}
 	
-	//¸ù¾İµ±Ç°Ò³ÃæÖØĞÂÆô¶¯Í¼Æ¬¼ÓÔØ
+    //æ ¹æ®å½“å‰é¡µé¢é‡æ–°å¯åŠ¨å›¾ç‰‡åŠ è½½
 	private void resetWaitingList(){
 		List<Integer> list=new ArrayList<Integer>();
 		for(int tmpMark=mainView.getFirstVisiblePosition();tmpMark<=mainView.getLastVisiblePosition();tmpMark++){
@@ -460,15 +498,8 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		adapter.resetWaitingList(list);		
 	}
 	
-	// Ö§³Ö·ºĞÍ
-	/*
-	private <K, V> LruCache<K, V> initCache2() {
-		LruCache<K, V> cache = null;
-		return cache;
-	}
-	*/
-	
-	//·µ»Ø
+
+    //è¿”å›
 	private int mResultCode;
 	private Intent mResultIntent;
 	private void setResultEx(int resultCode,Intent data){

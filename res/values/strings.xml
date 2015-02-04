@@ -5,5 +5,5 @@
 	<string name="btn_name">取照</string>
 	<string name="list_btn_name">更新列表</string>
 	<string name="list_switch">类型选择</string>
-	<string name="finish_select">完成</string>
+	<string name="button_done">完成</string>
 </resources>

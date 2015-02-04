@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 
 /**
- * Ä¿Â¼µ¯³ö¿òAdapter
+ *ç›®å½•Adapter
  * @author fc
  *
  */

@@ -35,7 +35,7 @@
             android:name="com.crabfibber.fccamalbum.controller.CamLocList"></activity>
         
         <activity
-            android:name="com.crabfibber.fccamalbum.controller.UploadController"></activity>        
+            android:name="com.crabfibber.fccamalbum.utils.UploadController"></activity>        
 </application>
 
 </manifest>

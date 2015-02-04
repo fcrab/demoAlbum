@@ -11,43 +11,43 @@ import android.view.MotionEvent;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
 
-//´øÊÖÊÆ²Ù×÷µÄimageView
+//å¸¦æ‰‹åŠ¿æ“ä½œçš„imageView
 
 public class CustomPreviewImageView extends ImageView {
 
 	private static final String TAG="customPreviewImageView";
 	
-	//¶¯×÷×´Ì¬¼ÇÂ¼
+  //åŠ¨ä½œçŠ¶æ€è®°å½•
 	private enum MODE{
 		NONE,DRAG,ZOOM
 	}
 	
-	private boolean isMonitorV=false;		//´¹Ö±¼à¿Ø
+	private boolean isMonitorV=false;		//å‚ç›´ç›‘æ§
 	
-	private boolean isMonitorH=false;		//Ë®Æ½¼à¿Ø
+	private boolean isMonitorH=false;		//æ°´å¹³ç›‘æ§
 	
-	private boolean isScaleAnim=false;	//ÊÇ·ñ¿ªÆô¶¯»­
+	private boolean isScaleAnim=false;	//æ˜¯å¦å¼€å¯åŠ¨ç”»
 	
-	private ScaleAnimation scaleAnimation;	//Ëõ·Å¶¯»­
+	private ScaleAnimation scaleAnimation;	//ç¼©æ”¾åŠ¨ç”»
 	
 	public MODE mode=MODE.NONE;
 	
-	private int screenW,screenH;		//ÆÁÄ»¿É¼û¿í¸ß
+	private int screenW,screenH;		//å±å¹•å¯è§å®½é«˜
 	
-	private int imageW,imageH;			//Í¼Æ¬µ±Ç°¿í¸ß
+	private int imageW,imageH;			//å›¾ç‰‡å½“å‰å®½é«˜
 		
-	//Î»ÖÃ¼ÇÂ¼
-	private int MAX_W,MAX_H,MIN_W,MIN_H;		//¿í¸ß¼«ÏŞÖµ
+	//ä½ç½®è®°å½•
+	private int MAX_W,MAX_H,MIN_W,MIN_H;		//å®½é«˜æé™å€¼
 	
-	private int curTop,curRight,curBottom,curLeft;		//µ±Ç°Í¼Æ¬±ß¿òÖµ
+	private int curTop,curRight,curBottom,curLeft;		//å½“å‰å›¾ç‰‡è¾¹æ¡†å€¼
 	
-	private int defaultTop=-1,defaultRight=-1,defaultBottom=-1,defaultLeft=-1;		//Ä¬ÈÏ±ß¿òÖµ
+	private int defaultTop=-1,defaultRight=-1,defaultBottom=-1,defaultLeft=-1;		//é»˜è®¤è¾¹æ¡†å€¼
 	
-	private Point defaultPoint,currentPoint;		//´¥ÃşÎ»ÖÃ
+	private Point defaultPoint,currentPoint;		//è§¦æ‘¸ä½ç½®
 	
-	private float defaultDistance,newDistance;		//´¥Ãşµã¾àÀë
+	private float defaultDistance,newDistance;		//è§¦æ‘¸ç‚¹è·ç¦»
 	
-	private float tml_scale;		//µ±Ç°Ëõ·Å±ÈÀı
+	private float tml_scale;		//å½“å‰ç¼©æ”¾æ¯”ä¾‹
 	
 	
 	
@@ -66,9 +66,9 @@ public class CustomPreviewImageView extends ImageView {
 		currentPoint=new Point();		
 	}
 
-	/*
-	 * ³õÊ¼»¯ÆÁÄ»¿É¼ûÇøÓò´óĞ¡²ÎÊı
-	 */
+  /*
+   * åˆå§‹åŒ–å±å¹•å¯è§åŒºåŸŸå¤§å°å‚æ•°
+   */
 	public void setScreenSize(int width,int height){
 		screenH=height;
 		screenW=width;
@@ -78,11 +78,11 @@ public class CustomPreviewImageView extends ImageView {
 	public void setImageBitmap(Bitmap bm) {
 		super.setImageBitmap(bm);
 		
-		//Í¼Æ¬Ä¬ÈÏ´óĞ¡
+      //å›¾ç‰‡é»˜è®¤å¤§å°
 		imageW=bm.getWidth();
 		imageH=bm.getHeight();
 		
-		//Éè¶¨¼«ÏŞÖµ(3±¶´óĞ¡,1/2×îĞ¡Öµ)
+      //è®¾å®šæé™å€¼(3å€å¤§å°,1/2æœ€å°å€¼)
 		MAX_H=imageH*3;
 		MAX_W=imageW*3;
 		
@@ -96,7 +96,7 @@ public class CustomPreviewImageView extends ImageView {
 	protected void onLayout(boolean changed, int left, int top, int right,
 			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
-		//³õÊ¼»¯×ø±êÎ»ÖÃ
+      //åˆå§‹åŒ–åæ ‡ä½ç½®
 		if(defaultTop==-1){
 			defaultTop=top;
 			defaultLeft=left;
@@ -105,37 +105,36 @@ public class CustomPreviewImageView extends ImageView {
 		}
 	}
 
-	/**
-	 * ÅĞ¶ÏÊÖÊÆÊÂ¼ş
-	 * ¹æÔò:
-	 * µ¥ÊÖÖ¸²Ù×÷£ºACTION_DOWN---ACTION_MOVE----ACTION_UP
-	 * ¶àÊÖÖ¸²Ù×÷£ºACTION_DOWN---ACTION_POINTER_DOWN---ACTION_MOVE--ACTION_POINTER_UP---ACTION_UP.
-	 * 
-	 */
-	
+
+  /**
+   * åˆ¤æ–­æ‰‹åŠ¿äº‹ä»¶
+   * è§„åˆ™:
+   * å•æ‰‹æŒ‡æ“ä½œï¼šACTION_DOWN---ACTION_MOVE----ACTION_UP
+   * å¤šæ‰‹æŒ‡æ“ä½œï¼šACTION_DOWN---ACTION_POINTER_DOWN---ACTION_MOVE--ACTION_POINTER_UP---ACTION_UP.
+   * 
+   */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		super.onTouchEvent(event);
 		switch(event.getAction()&MotionEvent.ACTION_MASK){
 		case MotionEvent.ACTION_DOWN:
-			onTouchDown(event);		//´¦Àí°´ÏÂµÄ¶¯×÷(µÚÒ»¸ö¶¯×÷)
+			onTouchDown(event);		//å¤„ç†æŒ‰ä¸‹çš„åŠ¨ä½œ(ç¬¬ä¸€ä¸ªåŠ¨ä½œ)
 			break;
 		case MotionEvent.ACTION_POINTER_DOWN:
-			//ÅĞ¶ÏÊÇ·ñÁ½ÊÖ²Ù×÷Ëõ·Å¶¯×÷
+          //åˆ¤æ–­æ˜¯å¦ä¸¤æ‰‹æ“ä½œç¼©æ”¾åŠ¨ä½œ
 			onZoomTouch(event);
 			break;
 		case MotionEvent.ACTION_MOVE:
-			onTouchMove(event);		//ÍÏ¶¯
+			onTouchMove(event);		//æ‹–åŠ¨
 			break;
 		case MotionEvent.ACTION_UP:
-			//½áÊø¶¯×÷
+          //ç»“æŸåŠ¨ä½œ
 			mode=MODE.NONE;
 			break;			
 		case MotionEvent.ACTION_POINTER_UP:
 			mode=MODE.NONE;
-			//Ö´ĞĞËõ·Å¶¯»­
+          //æ‰§è¡Œç¼©æ”¾åŠ¨ç”»
 			if(isScaleAnim){
-				//TODO	¶¯»­Ğ§¹û
 				actScaleAnim();
 			}
 			break;
@@ -143,54 +142,54 @@ public class CustomPreviewImageView extends ImageView {
 		
 		return true;
 	}
-
-	/**
-	 * Ò»Ğ©¶¯×÷
-	 */
 	
-	//°´ÏÂ
+  /**
+   * ä¸€äº›åŠ¨ä½œ
+   */
+  
+  //æŒ‰ä¸‹
 	private void onTouchDown(MotionEvent event){
-		mode=MODE.DRAG;		//ÍÏ×§Ä£Ê½¿ªÊ¼
+		mode=MODE.DRAG;		//æ‹–æ‹½æ¨¡å¼å¼€å§‹
 		
-		//³õÊ¼»¯×ø±ê
+      //åˆå§‹åŒ–åæ ‡
 		currentPoint.x=(int) event.getRawX();
 		currentPoint.y=(int) event.getRawY();
 		
 		defaultPoint.x=(int) event.getX();
 		defaultPoint.y=currentPoint.y-getTop();
 		
-		Log.v(TAG,"curPoint:"+currentPoint.toString());
-		Log.v(TAG,"defaultPoint:"+defaultPoint.toString());
+//		Log.v(TAG,"curPoint:"+currentPoint.toString());
+//		Log.v(TAG,"defaultPoint:"+defaultPoint.toString());
 	}
 
-	//Ëõ·Å¶¯×÷(Á½ÊÖÖ¸)
+  //ç¼©æ”¾åŠ¨ä½œ(ä¸¤æ‰‹æŒ‡)
 	private void onZoomTouch(MotionEvent event){
 		if(event.getPointerCount()==2){
 			mode=MODE.ZOOM;
-			//»ñÈ¡Á½µã¾àÀë
+          //è·å–ä¸¤ç‚¹è·ç¦»
 			defaultDistance=getDistance(event);
 		}
 	}
 
 		
-	//´¥ÃşÍÏ¶¯ÏìÓ¦
+  //è§¦æ‘¸æ‹–åŠ¨å“åº”
 	private void onTouchMove(MotionEvent event){
 		Log.v(TAG, "moving mode="+mode);
 		int tmpLeft=0,tmpRight=0,tmpTop=0,tmpBottom=0;
-		if(mode==MODE.DRAG){		//ÍÏ¶¯ÊÂ¼ş
+		if(mode==MODE.DRAG){		//ï¿½Ï¶ï¿½ï¿½Â¼ï¿½
 			
 			//test
 			//only zoom
 			
-			//·ÀÖ¹dragÔ½½ç
-			Log.v(TAG,"Draging");
-			//»ñÈ¡ÍÏ¶¯µÄĞÂÎ»ÖÃ
+          //é˜²æ­¢dragè¶Šç•Œ
+//			Log.v(TAG,"Draging");
+          //è·å–æ‹–åŠ¨çš„æ–°ä½ç½®
 			tmpLeft=currentPoint.x-defaultPoint.x;
 			tmpRight=currentPoint.x+getWidth()-defaultPoint.x;
 			tmpTop=currentPoint.y-defaultPoint.y;
 			tmpBottom=currentPoint.y+getHeight()-defaultPoint.y;
 			
-			//Ë®Æ½ÅĞ¶Ï
+          //æ°´å¹³åˆ¤æ–­
 			if(isMonitorH){
 				if(tmpLeft>=0){
 					tmpLeft=0;
@@ -205,7 +204,7 @@ public class CustomPreviewImageView extends ImageView {
 				tmpRight=getRight();
 			}
 			
-			//´¹Ö±ÅĞ¶Ï
+          //å‚ç›´åˆ¤æ–­
 			if(isMonitorV){
 				if(tmpTop>=0){
 					tmpTop=0;
@@ -221,19 +220,19 @@ public class CustomPreviewImageView extends ImageView {
 			}
 			
 			if(isMonitorH || isMonitorV){
-				//¸ù¾İÎ»ÖÃÖØ»æ
+              //æ ¹æ®ä½ç½®é‡ç»˜
 				layout(tmpLeft, tmpTop, tmpRight, tmpBottom);
 			}
 			
 			currentPoint.x=(int) event.getRawX();
 			currentPoint.y=(int) event.getRawY();
 		
-		}else if(mode==MODE.ZOOM){		//´¦ÀíËõ·Å
+		}else if(mode==MODE.ZOOM){		//å¤„ç†ç¼©æ”¾
 			newDistance=getDistance(event);
 			
-			float gapDistance=newDistance-defaultDistance;		//±ä»¯µÄ¾àÀë
+			float gapDistance=newDistance-defaultDistance;		//å˜åŒ–çš„è·ç¦»
 			
-			if(Math.abs(gapDistance)>5f){		//´óÓÚ5¾Í¿ªÊ¼¼ÆËãËõ·Å±ÈÀı
+			if(Math.abs(gapDistance)>5f){		//å¤§äº5å°±å¼€å§‹è®¡ç®—ç¼©æ”¾æ¯”ä¾‹
 				tml_scale=newDistance/defaultDistance;
 				
 				setScale(tml_scale);
@@ -245,22 +244,22 @@ public class CustomPreviewImageView extends ImageView {
 	}
 
 	
-	//¼ÆËãÁ½µã¾àÀë
+  //è®¡ç®—ä¸¤ç‚¹è·ç¦»
 	private float getDistance(MotionEvent event){
 		float x=event.getX(0)-event.getX(1);
 		float y=event.getY(0)-event.getY(1);
 		return FloatMath.sqrt(x*x+y*y);
 	}
 	
-	//Ëõ·Å´¦Àí
+  //ç¼©æ”¾å¤„ç†
 	void setScale(float scale){
-		int disX=(int)(getWidth()*Math.abs(1-scale))/4;			//Ëõ·ÅË®Æ½¾àÀë
-		int disY=(int)(getHeight()*Math.abs(1-scale))/4;			//Ëõ·Å´¹Ö±¾àÀë
+		int disX=(int)(getWidth()*Math.abs(1-scale))/4;			//ç¼©æ”¾æ°´å¹³è·ç¦»
+		int disY=(int)(getHeight()*Math.abs(1-scale))/4;			//ç¼©æ”¾å‚ç›´è·ç¦»
 		
 
 		if(scale>1&&getWidth()<=MAX_W){
-			//zoom in ·Å´ó
-			//¼ÆËãĞÂµÄ´óĞ¡
+          //zoom in æ”¾å¤§
+          //è®¡ç®—æ–°çš„å¤§å°
 			curLeft=getLeft()-disX;
 			curTop=getTop()-disY;
 			curRight=getRight()+disX;
@@ -269,37 +268,37 @@ public class CustomPreviewImageView extends ImageView {
 			setFrame(curLeft, curTop, curRight, curBottom);
 			
 			//TODO
-			//¶Ô³Æ£¬Ö»×öÒ»´ÎÅĞ¶Ï
+          //å¯¹ç§°ï¼Œåªåšä¸€æ¬¡åˆ¤æ–­
 			if(curTop<=0 && curBottom >=screenH ){
-				//ÒÑ¾­³¬³öÆÁÄ»·¶Î§
-				isMonitorV=true;		//´¹Ö±¼à¿Ø
+              //å·²ç»è¶…å‡ºå±å¹•èŒƒå›´
+				isMonitorV=true;		//å‚ç›´ç›‘æ§
 			}else{
 				isMonitorV=false;
 			}
 			if(curLeft<=0 && curRight>= screenW){
-				//ÒÑ¾­³¬³öÆÁÄ»·¶Î§
-				isMonitorH=true;		//Ë®Æ½¼à¿Ø
+              //å·²ç»è¶…å‡ºå±å¹•èŒƒå›´
+				isMonitorH=true;		//æ°´å¹³ç›‘æ§
 			}else{
 				isMonitorH=false;
 			}
 		}else if(scale<1 && getWidth()>=MIN_W){
-			//zoom out ËõĞ¡
+          //zoom out ç¼©å°
 			curLeft=getLeft()+disX;
 			curTop=getTop()+disY;
 			curRight=getRight()-disX;
 			curBottom=getBottom()-disY;
 			
-			//ÉÏ·½Ô½½ç
+          //ä¸Šæ–¹è¶Šç•Œ
 			if(isMonitorV && curTop>0){
 				curTop=0;
-				curBottom=getBottom()-2*disY;		//ÒÔÁ½±¶ËÙ¶ÈÀ£Ëõ
+				curBottom=getBottom()-2*disY;		//ä»¥ä¸¤å€é€Ÿåº¦æºƒç¼©
 				if(curBottom<screenH){
-					curBottom=screenH;		//ÕâÀïÎªºÎÒªÇ¿ÖÆÀ­»ØÀ´£¿
-					isMonitorV=false;		//ÒÑ¾­»Øµ½ÆÁÄ»ÄÚ
+					curBottom=screenH;		
+					isMonitorV=false;		
 				}
 			}
 			
-			//ÏÂ·½Ô½½ç
+          //ä¸‹æ–¹è¶Šç•Œ
 			if(isMonitorV && curBottom<screenH){
 				curBottom=screenH;
 				curTop=getTop()+2*disY;
@@ -309,7 +308,7 @@ public class CustomPreviewImageView extends ImageView {
 				}
 			}
 			
-			//×ó±ßÔ½½ç
+          //å·¦è¾¹è¶Šç•Œ
 			if(isMonitorH && curLeft>=0){
 				curLeft=0;
 				curRight=getRight()-2*disX;
@@ -320,7 +319,7 @@ public class CustomPreviewImageView extends ImageView {
 			}
 			
 			
-			//ÓÒ±ßÔ½½ç
+          //å³è¾¹è¶Šç•Œ
 			if(isMonitorH && curRight<=screenW){
 				curRight=screenW;
 				curLeft=getLeft()+2*disX;
@@ -333,9 +332,9 @@ public class CustomPreviewImageView extends ImageView {
 			//
 			this.setFrame(curLeft, curTop, curRight, curBottom);
 			if(isMonitorH || isMonitorV){
-				//»¹ÔÚ·¶Î§Íâ
+              //è¿˜åœ¨èŒƒå›´å¤–
 			}else{
-				isScaleAnim=true;		//¿ªÆô¶¯»­
+				isScaleAnim=true;		//å¼€å¯åŠ¨ç”»
 			}
 			
 		}
@@ -344,9 +343,9 @@ public class CustomPreviewImageView extends ImageView {
 		
 	}
 	
-	/**
-	 * »ØËõ¶¯»­´¦Àí
-	 */
+  /**
+   * å›ç¼©åŠ¨ç”»å¤„ç†
+   */
 	private void actScaleAnim(){
 		
 	}

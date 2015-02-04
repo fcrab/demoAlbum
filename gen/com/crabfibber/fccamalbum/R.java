@@ -994,10 +994,10 @@ containing a value of this type.
         public static final int activity_chooser_view_content=0x7f090025;
         public static final int always=0x7f09000f;
         public static final int beginning=0x7f090016;
-        public static final int bottom_layout=0x7f090045;
+        public static final int bottom_layout=0x7f090044;
         public static final int catalog_list=0x7f090043;
-        public static final int catalog_name=0x7f09004b;
-        public static final int catalog_select=0x7f090047;
+        public static final int catalog_name=0x7f09004a;
+        public static final int catalog_select=0x7f090046;
         public static final int checkbox=0x7f09002d;
         public static final int collapseActionView=0x7f090010;
         public static final int custom_preview_iamge=0x7f09003e;
@@ -1009,8 +1009,7 @@ containing a value of this type.
         public static final int end=0x7f090017;
         public static final int expand_activities_button=0x7f090026;
         public static final int expanded_menu=0x7f09002c;
-        public static final int getPhoto=0x7f090044;
-        public static final int get_loc_list_btn=0x7f090048;
+        public static final int get_loc_list_btn=0x7f090047;
         public static final int home=0x7f090000;
         public static final int homeAsUp=0x7f09000a;
         public static final int icon=0x7f09002a;
@@ -1018,17 +1017,17 @@ containing a value of this type.
         public static final int image=0x7f090027;
         public static final int listMode=0x7f090006;
         public static final int list_item=0x7f090029;
-        public static final int loc_item_cb=0x7f09004f;
-        public static final int loc_item_radio=0x7f090050;
-        public static final int loc_item_text=0x7f09004e;
-        public static final int loc_listview=0x7f09004a;
-        public static final int loc_switch=0x7f090049;
-        public static final int main_grid=0x7f090046;
+        public static final int loc_item_cb=0x7f09004e;
+        public static final int loc_item_radio=0x7f09004f;
+        public static final int loc_item_text=0x7f09004d;
+        public static final int loc_listview=0x7f090049;
+        public static final int loc_switch=0x7f090048;
+        public static final int main_grid=0x7f090045;
         public static final int middle=0x7f090018;
         public static final int never=0x7f090012;
         public static final int none=0x7f090019;
         public static final int normal=0x7f090007;
-        public static final int num_count=0x7f09004c;
+        public static final int num_count=0x7f09004b;
         public static final int origin_photo=0x7f090041;
         public static final int photo_selected=0x7f090042;
         public static final int preview_bottom_layout=0x7f09003f;
@@ -1053,7 +1052,7 @@ containing a value of this type.
         public static final int split_action_bar=0x7f09001e;
         public static final int submit_area=0x7f090039;
         public static final int tabMode=0x7f090008;
-        public static final int take_pic=0x7f09004d;
+        public static final int take_pic=0x7f09004c;
         public static final int thumb_check=0x7f09003d;
         public static final int thumb_image=0x7f09003c;
         public static final int title=0x7f09002b;
@@ -1114,7 +1113,7 @@ containing a value of this type.
         public static final int album_item_layout=0x7f030017;
         public static final int album_photo_preview=0x7f030018;
         public static final int album_pop_up_list=0x7f030019;
-        public static final int cam_ablum=0x7f03001a;
+        public static final int cam_album=0x7f03001a;
         public static final int cam_loc_list_layout=0x7f03001b;
         public static final int catalog_item_layout=0x7f03001c;
         public static final int item_button=0x7f03001d;
@@ -1164,7 +1163,7 @@ containing a value of this type.
         public static final int abc_shareactionprovider_share_with_application=0x7f0a000b;
         public static final int app_name=0x7f0a000d;
         public static final int btn_name=0x7f0a000e;
-        public static final int finish_select=0x7f0a0011;
+        public static final int button_done=0x7f0a0011;
         public static final int list_btn_name=0x7f0a000f;
         public static final int list_switch=0x7f0a0010;
     }

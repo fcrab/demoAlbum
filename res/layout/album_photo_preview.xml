@@ -25,21 +25,25 @@
         android:id="@+id/preview_bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
+        android:background="#FFFFFF"
         android:layout_alignParentBottom="true">
         <Button
             android:id="@+id/origin_photo"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_alignParentLeft="true"
+            android:background="#FFFFFF"
             android:text="origin_photo"
             android:visibility="invisible"
             />
-        <Button
+        <CheckBox 
             android:id="@+id/photo_selected"
+            
+            android:layout_centerVertical="true"
+            android:text="选择"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="select_photo"
             />
     </RelativeLayout>
 

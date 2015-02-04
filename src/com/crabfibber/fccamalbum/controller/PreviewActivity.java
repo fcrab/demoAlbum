@@ -1,15 +1,21 @@
 package com.crabfibber.fccamalbum.controller;
 
 import com.crabfibber.fccamalbum.R;
+import com.crabfibber.fccamalbum.model.AlbumModel;
+import com.crabfibber.fccamalbum.utils.AlbumUtils;
 import com.crabfibber.fccamalbum.view.CustomPreviewImageView;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -17,17 +23,20 @@ import android.widget.Toast;
  * photo_preview
  * @author fc
  *
- *2015/1/4 Ô¤ÀÀ
- *2015/1/6 Ëõ·Å
+ *2015/1/4 é¢„è§ˆ
+ *2015/1/6 ç¼©æ”¾
+ *2015/1/22 ç‚¹å‡»é€‰æ‹©
  *
  */
 
-public class PreviewActivity extends Activity {
+public class PreviewActivity extends Activity implements OnClickListener {
 	private static final String TAG="PreviewActivity";
 //	private ImageView preview;
 	private CustomPreviewImageView customPreview;
 	private Bitmap bitmap;
 	private String path;
+	
+	private CheckBox selectBox;        //é€‰æ‹©æ¡†
 	
 	private int winWidth=0;
 	private int winHeight=0;
@@ -36,18 +45,18 @@ public class PreviewActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.album_photo_preview);
-		//»ñÈ¡´«¹ıÀ´µÄÊı¾İ
+        //è·å–ä¼ è¿‡æ¥çš„æ•°æ®
 		path=getIntent().getStringExtra("photoUri");
 		Log.v(TAG,path);
 		
 		customPreview=(CustomPreviewImageView)findViewById(R.id.custom_preview_iamge);
-		
-		
+		selectBox=(CheckBox)findViewById(R.id.photo_selected);
+		selectBox.setOnClickListener(this);
 //		preview=(ImageView)findViewById(R.id.preview_image);
 		
-		//»ñÈ¡Õû¸öÊÖ»ú¿É¼ûÇøÓòÊı¾İ
+        //è·å–æ•´ä¸ªæ‰‹æœºå¯è§åŒºåŸŸæ•°æ®
 		WindowManager manager=getWindowManager();
-//		winWidth=manager.getDefaultDisplay().getWidth();		//api±»ÆúÓÃ use getSize()
+//		winWidth=manager.getDefaultDisplay().getWidth();		//apiè¢«å¼ƒç”¨ use getSize()
 //		winHeight=manager.getDefaultDisplay().getHeight();		
 //		Log.v(TAG,"Win width:"+String.valueOf(winWidth));
 //		Log.v(TAG,"Win height:"+String.valueOf(winHeight));
@@ -62,7 +71,13 @@ public class PreviewActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-
+		
+        //åˆå§‹åŒ–
+        if(AlbumModel.resultPath.contains(path)){
+            selectBox.setChecked(true);
+        }else{
+            selectBox.setChecked(false);
+        }
 	}
 	
 	@Override
@@ -71,15 +86,15 @@ public class PreviewActivity extends Activity {
 		Log.v(TAG,"imageView height:"+String.valueOf(customPreview.getHeight()));
 		Log.v(TAG,"imageView width:"+String.valueOf(customPreview.getWidth()));		
 		customPreview.setScreenSize(customPreview.getWidth(), customPreview.getHeight());
-		//ÕâÑù×Ó»¹ÊÇ²»Ì«ºÃ¡£ÒòÎª»áÓĞÑÓ³Ù(ºÃÏñÒ²¿´²»Ì«³öÀ´)
+
 		int width=customPreview.getWidth();
 		int height=customPreview.getHeight();
 		if(width!=0&&height!=0){
-			bitmap=getImage(width, height);
+			bitmap=getImage(width, height);      //è·å–å›¾åƒ
 //			preview.setImageBitmap(bitmap);
 			customPreview.setImageBitmap(bitmap);
 		}else{
-			Toast.makeText(PreviewActivity.this, "Í¼Æ¬ÈİÆ÷²ÎÊıÓĞÎó", Toast.LENGTH_LONG);
+			Toast.makeText(PreviewActivity.this, "å›¾ç‰‡å®¹å™¨å‚æ•°æœ‰è¯¯", Toast.LENGTH_LONG).show();
 		}
 	}
 	
@@ -90,15 +105,39 @@ public class PreviewActivity extends Activity {
 		int imgWidth = factoryOptions.outWidth;
 		int imgHeight = factoryOptions.outHeight;
 		int scaleFactor = Math.max(imgWidth / width, imgHeight / height);
+		//æ—‹è½¬
+		
 //		Log.v(TAG, "scaleFactor:" + String.valueOf(scaleFactor));
-		factoryOptions.inJustDecodeBounds = false;
+		factoryOptions.inJustDecodeBounds = false;        
 		factoryOptions.inSampleSize = scaleFactor;
 		factoryOptions.inPurgeable = true;
 
 		Bitmap bitmap = BitmapFactory.decodeFile(path, factoryOptions);
 
+	    //æ—‹è½¬
+        int degree=AlbumUtils.readPictureDegree(path);
+        Matrix matrix=new Matrix();
+        matrix.postRotate(degree);        
+        bitmap=Bitmap.createBitmap(bitmap,0,0,bitmap.getWidth(),bitmap.getHeight(),matrix,true);
+		
 		return bitmap;
 	}
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.photo_selected:
+                if(((CheckBox)view).isChecked()){
+                    AlbumModel.resultPath.add(path);
+                }else{
+                    if(AlbumModel.resultPath.contains(path)){
+                        AlbumModel.resultPath.remove(path);
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+    }
 	
 }

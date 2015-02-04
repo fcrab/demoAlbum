@@ -21,7 +21,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 /**
- * 单项&多项选择页面
+ * 娴嬭瘯
  * @author fc
  * example
  */

@@ -35,7 +35,7 @@ import android.widget.ImageView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 /**
- * Ïà²áÍ¼Æ¬gridview adapter(´øÅÄÕÕ¹¦ÄÜ)
+ *å¸¦ç›¸æœºçš„gridView
  * @author fc
  *
  */
@@ -66,7 +66,7 @@ public class CamItemAdapter extends BaseAdapter {
 		workTask.execute();
 	}
 
-	//Í£Ö¹¸üÐÂ
+	//Í£Ö¹ï¿½ï¿½ï¿½ï¿½
 	public void finishTask() {
 		workTask.cancel(true);
 	}
@@ -90,10 +90,10 @@ public class CamItemAdapter extends BaseAdapter {
 		return position;
 	}
 
-	// Ä¬ÈÏÎª1
+	// Ä¬ï¿½ï¿½Îª1
 	private static final int FIRST_ITEM = 0x01;
 	private static final int OTHER_ITEM = 0x02;
-	private static final int TYPE_COUNT = 3; // ÎªÊ²Ã´»áÓÐÈýÖÖ£¡£¿
+	private static final int TYPE_COUNT = 3; // ÎªÊ²Ã´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö£ï¿½ï¿½ï¿½
 
 	@Override
 	public int getItemViewType(int position) {
@@ -134,7 +134,7 @@ public class CamItemAdapter extends BaseAdapter {
 				@Override
 				public void onClick(View v) {
 					Log.v(TAG, "take photo");
-					Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);		//ÅÄÕÕ
+					Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);		//ï¿½ï¿½ï¿½ï¿½
 					context.startActivity(intent);
 				}
 			});
@@ -170,7 +170,7 @@ public class CamItemAdapter extends BaseAdapter {
 				@Override
 				public void onClick(View v) {
 					Log.v(TAG,"mViewClick");
-					//µã»÷Ô¤ÀÀ
+					//ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½
 					Intent intent=new Intent(context, PreviewActivity.class);					
 					intent.putExtra("photoUri", filePos);
 					context.startActivity(intent);
@@ -184,7 +184,7 @@ public class CamItemAdapter extends BaseAdapter {
 			}
 			if (bitmap == null) {
 				waitList.add(position - 1);
-				//Éè¶¨Ä¬ÈÏÏÔÊ¾
+				//ï¿½è¶¨Ä¬ï¿½ï¿½ï¿½ï¿½Ê¾
 				holder.mView.setImageResource(R.drawable.cpimage_photo_bg);
 				
 				// holder.mView.setImageResource(R.drawable.cpimage_photo_bg);
@@ -283,7 +283,7 @@ public class CamItemAdapter extends BaseAdapter {
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
-			//Ã»·µ»Ø£¬Ã»±ØÒª
+			//Ã»ï¿½ï¿½ï¿½Ø£ï¿½Ã»ï¿½ï¿½Òª
 			super.onPostExecute(result);
 /*
 			int tmlPos = waitList.get(0);

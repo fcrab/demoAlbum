@@ -1,11 +1,11 @@
-package com.crabfibber.fccamalbum.controller;
+package com.crabfibber.fccamalbum.utils;
 
 import java.io.File;
 
 import android.content.Context;
 
 /**
- * 上传。暂时不需要了
+ * 涓婁紶妯″潡
  * @author fc
  *
  */

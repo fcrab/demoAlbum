@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 /**
- * 
+ * 单元格长宽一致的GridView
  * @author fc
  *
  */
@@ -24,8 +24,7 @@ public class CustomGridItemView extends ImageView {
 		super(context,attrs,defStyle);
 	}
 	
-	
-	//�趨ÿ��view�ĳ������
+	//设定每个view的长宽相等
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
