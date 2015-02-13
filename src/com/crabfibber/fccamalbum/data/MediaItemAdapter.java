@@ -3,6 +3,7 @@ package com.crabfibber.fccamalbum.data;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
@@ -82,11 +84,18 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 		beginTask();
 	}
 	
+	//对比重整waiting List。可能会卡？不太可能吧
 	public void resetWaitingList(List<Integer> list){		
 //		if(workTask.getStatus()==Status.FINISHED)
 	    initCheckMap();
+	    List<Integer> tmpList=new ArrayList<Integer>();
+	    tmpList.addAll(waitList);
 	    waitList.clear();
-		waitList.addAll(list);
+	    for(int counterTmp:list){
+	    	if(tmpList.contains(counterTmp)){
+	    		waitList.add(counterTmp);
+	    	}
+	    }
 		beginTask();
 	}
 	
@@ -109,6 +118,7 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
+//		Log.v(TAG,"正在加载:"+String.valueOf(position)+" 位置的单元");
 		ImgHolder holder = null;
 		if (convertView == null) {
 			convertView = inflater.inflate(R.layout.album_item_layout, null);
@@ -179,6 +189,7 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 	        }
 	        if (bitmap == null) {
 	            waitList.add(position);
+	            Log.v(TAG,"waiting list in getView adding object"+String.valueOf(position));
 	            //如果无法找到图片，设置为背景图片
 	            holder.mView.setImageResource(R.drawable.cpimage_photo_bg);
 	            
@@ -206,18 +217,28 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 
 	// get thumb image without LRU cache
 	private Bitmap getImage(String path) {
+		//计算缩小的倍数		
 		BitmapFactory.Options factoryOptions = new BitmapFactory.Options();
 		factoryOptions.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(path, factoryOptions);
 		int imgWidth = factoryOptions.outWidth;
 		int imgHeight = factoryOptions.outHeight;
+
 		int scaleFactor = Math.max(imgWidth / 100, imgHeight / 100);
 //		Log.v(TAG, "scaleFactor:" + String.valueOf(scaleFactor));
 		factoryOptions.inJustDecodeBounds = false;
-		factoryOptions.inSampleSize = scaleFactor;
+		if(scaleFactor>4){
+			factoryOptions.inSampleSize=scaleFactor/2;		//(尽量保证图片别太糊)			
+		}else{
+			factoryOptions.inSampleSize = scaleFactor;			
+		}
+
 		factoryOptions.inPurgeable = true;
 
 		Bitmap bitmap = BitmapFactory.decodeFile(path, factoryOptions);
+
+		
+//		Bitmap bitmap = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(path), 100, 100, ThumbnailUtils.OPTIONS_RECYCLE_INPUT);
 		
 		//旋转
 		int degree=AlbumUtils.readPictureDegree(path);
@@ -231,7 +252,28 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 		
 		return bitmap;
 	}
-
+/*
+	//get thumb image from thumbnails table
+	@Deprecated
+	private Bitmap getImage(Integer position){
+		String thumbPath=AlbumModel.thumbList.get(position);
+		if(thumbPath!=null&&!thumbPath.equals("")){
+			
+		}else{
+			return null;
+		}
+		
+		Bitmap bitmap=BitmapFactory.decodeFile(thumbPath);
+		//旋转
+		//暂时屏蔽
+//		int degree=AlbumUtils.readPictureDegree(thumbPath);
+		
+//        Matrix matrix=new Matrix();
+//        matrix.postRotate(degree);
+        bitmap=Bitmap.createScaledBitmap(bitmap, 100, 100, true);
+		return bitmap;
+	}
+	*/
 	/*
 	 * LRUcache read and write
 	 */
@@ -281,7 +323,7 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 			while (true) {
 				//被终止
 				if(isCancelled()){
-					Log.v(TAG,"the task is cancelled:"+currentThread);
+//					Log.v(TAG,"the task is cancelled:"+currentThread);
 					break;
 				}
 				
@@ -302,8 +344,14 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 				        Log.v(TAG,"position is OutOfIndex");
 				        break;
 				    }
+				    Calendar calendar=Calendar.getInstance();
+				    Long time_1=calendar.getTimeInMillis();
+//				    Log.v(TAG, "获取图片时间1:"+String.valueOf(time_1));
+				    
 	                String url=list.get(tmlPos);                
-	                final Bitmap bitmap = getImage(url);
+	                final Bitmap bitmap = getImage(url);		//根据具体地址获取缩略图的Bitmap.自己压缩
+//	                final Bitmap bitmap = getImage(tmlPos);
+	                
 	                if(bitmap!=null){
 	                    addBitmapToLru(url, bitmap);
 	                    Message msg=new Message();
@@ -313,10 +361,14 @@ public class MediaItemAdapter extends BaseAdapter implements Handler.Callback{
 	                    msg.obj=bitmap;
 	                    msg.setData(data);
 	                    mainHandler.sendMessage(msg);                       
-	                }				    
+		                Long timeUse=Calendar.getInstance().getTimeInMillis()-time_1;
+//		                Log.v(TAG, "获取图片时间2:"+String.valueOf(Calendar.getInstance().getTimeInMillis()));
+		                Log.v(TAG, "获取图片时间:"+String.valueOf(timeUse));
+
+	                }
 				}else{
 				    try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1000);			//空闲1s后自行关闭
                         if(waitList==null||waitList.size()==0){
                             Log.v(TAG,"the task is finished:"+currentThread);
                             break;

@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -77,7 +78,7 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 	private static final int INIT_PROGRAM = 0x000A;
 	private static final int SET_ADAPTER = 0x000B;
 	private static final int INIT_CACHE = 0x000C;
-	private static final int FINISH_TASK = 0x000D;
+//	private static final int FINISH_TASK = 0x000D;
 	private static final int ERROR_OCCUR=0xFFFF;
 	private static final int CREATE_STATUS=0x0001;
 	private static final int RESUME_STATUS=0x0002;
@@ -255,6 +256,7 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			case INIT_PROGRAM:
 				Log.v(TAG,"INIT_PROGRAM");
 				getImagePath();
+//				getThumbnails();
 				break;
 			case SET_ADAPTER:
 				Log.v(TAG,"SET_ADAPTER");
@@ -264,24 +266,23 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 //							(List<String>) msg.obj, memCache);
 					adapter = new MediaItemAdapter(CameraAlbumActivity.this, handler, (List<String>)msg.obj, memCache);
 					mainView.setAdapter(adapter);
-//					mainView.setSelection(0);		//滚回顶部
-//					mainView.smoothScrollToPosition(0);
 					mainView.setOnScrollListener(CameraAlbumActivity.this);		//滑动监听
 				}else{
                     //数据更替
 					adapter.resetData((List<String>)msg.obj);
 					adapter.notifyDataSetChanged();
-					mainView.smoothScrollToPosition(0);					
+//					mainView.setSelection(0);		//滚回顶部
+					mainView.smoothScrollToPosition(0);				//滚回顶部	
 				}
 				break;
 			case INIT_CACHE:
 				memCache = initCache();
 				break;
-			case FINISH_TASK:
-				if (adapter != null) {
-					adapter.finishTask();
-				}
-				break;
+//			case FINISH_TASK:
+//				if (adapter != null) {
+//					adapter.finishTask();
+//				}
+//				break;
 			case MediaItemAdapter.UPDATE_UI:
 				String tag = msg.getData().getString("tag");
 				if (mainView!=null&&(ImageView) mainView.findViewWithTag(tag) != null) {
@@ -358,8 +359,9 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 	    }
 
 		Log.v(TAG,"path count:"+String.valueOf(mCursor.getCount()));
-		
+//		AlbumModel.currentPathID.clear(); 		//清除原来的ID数据
 		while(mCursor.moveToNext()){
+//			AlbumModel.currentPathID.add(mCursor.getInt(mCursor.getColumnIndex(MediaStore.Images.Media._ID)));
 			String tmlPath = mCursor.getString(mCursor
 					.getColumnIndex(MediaStore.Images.Media.DATA));
 			currentPathList.add(tmlPath);
@@ -368,17 +370,29 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 		return currentPathList;
 	}
 
+	/*
+	 * 获取系统的thumbnails 数据
+	 * 	//	目标字段
+	 *	//	Thumbnails._ID;					//表内容的ID
+	 *	//	Thumbnails.IMAGE_ID;			//关联image表的ID
+	 *	//	Thumbnails.DATA;				//完整路径
+	 *
+	 *数据库不完整	
+	 */
+	/*
+	@Deprecated
 	private void getThumbnails(){
-		ContentResolver mResolver = CameraAlbumActivity.this.getContentResolver();
+		ContentResolver mResolver = CameraAlbumActivity.this.getContentResolver();		
+		Cursor thumbCursor=mResolver.query(Thumbnails.EXTERNAL_CONTENT_URI, null, null, null, null);
 		
-		
-		Cursor cursor=mResolver.query(Thumbnails.EXTERNAL_CONTENT_URI, null, "", null, null);
-				
-		//目标字段
-//		Thumbnails._ID;					//表内容的ID
-//		Thumbnails.IMAGE_ID;			//关联image表的ID
+		while(thumbCursor.moveToNext()){
+			int imageID=thumbCursor.getInt(thumbCursor.getColumnIndex(Thumbnails.IMAGE_ID));
+			String thumbPath=thumbCursor.getString(thumbCursor.getColumnIndex(Thumbnails.DATA));
+			AlbumModel.thumbList.put(imageID, thumbPath);
+		}
 		
 	}
+	*/
 	
     // 初始化，获取全部的图片及其地址信息
 	private List<String> getPath(Uri uri) {
@@ -402,7 +416,8 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			
 			// Log.v(TAG, path);
 			pathList.add(path);
-			AlbumModel.currentPathFile.add(path);
+//			AlbumModel.currentPathFile.add(path);		//没有用到
+//			AlbumModel.currentPathID.add(mCursor.getInt(mCursor.getColumnIndex(MediaStore.Images.Media._ID)));
 
             // 写进一个文件夹列表
             // 这种方式比较耗内存啊。还是得想想办法不要用new
@@ -472,7 +487,7 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			resetWaitingList();
 			break;
 		case 1:				//开始滑动
-			
+			recordCurrentPosition();
 			break;
 		case 2:				//放开滑动
 		  //停止加载
@@ -480,6 +495,11 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
 			break;
 		}
 		
+	}
+	//记录当前视图位置
+	private void recordCurrentPosition(){
+		AlbumModel.curFirstVisiblePosition=mainView.getFirstVisiblePosition();
+		AlbumModel.curLastVisiblePosition=mainView.getLastVisiblePosition();
 	}
 
     //停止加载图片
@@ -492,10 +512,11 @@ public class CameraAlbumActivity extends Activity implements OnClickListener,OnS
     //根据当前页面重新启动图片加载
 	private void resetWaitingList(){
 		List<Integer> list=new ArrayList<Integer>();
+		//情况分类
 		for(int tmpMark=mainView.getFirstVisiblePosition();tmpMark<=mainView.getLastVisiblePosition();tmpMark++){
 			list.add(tmpMark);
 		}
-		adapter.resetWaitingList(list);		
+		adapter.resetWaitingList(list);
 	}
 	
 
